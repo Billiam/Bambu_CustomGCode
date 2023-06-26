@@ -50,6 +50,10 @@
   ; pause for user to load and press resume
   M400 U1
 
+  ; move away from chute and move back
+  G1 X65 Y240 F12000
+  G1 Y265 F3000
+
   ; don't know when next_extruder is >=255, so this may always activate?
   {if next_extruder < 255}
     M400
