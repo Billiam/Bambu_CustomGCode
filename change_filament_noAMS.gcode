@@ -39,8 +39,7 @@
   G1 X20 F12000
 
   ; move to poop chute
-  G1 X70 F12000
-  G1 Y245
+  G1 X65 Y245 F12000
   G1 Y265 F3000
 
   ; push a little filament out and then retract out
