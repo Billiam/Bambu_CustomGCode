@@ -1,9 +1,11 @@
 ; change filament without AMS g-code
 {if next_extruder != current_extruder}
   M204 S9000 ; set starting acceleration
-  G17 ; set CNC workspace plane
-  G2 Z{max_layer_z + 0.4} I0.86 J0.86 P1 F10000 ; spiral lift
-  G1 Z{max_layer_z + 3.0} F1200 ; vertical lift
+  {if z_hop_types[current_extruder] == 0 || z_hop_types[current_extruder] == 3}
+    G17 ; set CNC workspace plane
+    G2 Z{z_after_toolchange + 0.4} I0.86 J0.86 P1 F10000 ; spiral lift a little from second lift
+  {endif}
+  G1 Z{max_layer_z + 3.0} F1200 ;vertical lift
 
   ; move to poop chute
   G1 X70 F21000
@@ -14,6 +16,10 @@
   ; turn off fans P1 and P2
   M106 P1 S0
   M106 P2 S0
+
+  {if old_filament_temp > 142 && next_extruder < 255}
+    M104 S[old_filament_temp]
+  {endif}
 
   ; wipe?
   G1 X90 F3000
@@ -145,10 +151,10 @@
     G1 X165 F15000; wipe and shake
     G1 Y256 ; move Y to aside, prevent collision
     M400
-    G1 Z[z_after_toolchange] F3000
+    G1 Z{max_layer_z + 3.0} F3000
     {if layer_z <= (initial_layer_print_height + 0.001)}
       M204 S[initial_layer_acceleration]
-    {else}
+      {else}
       M204 S[default_acceleration]
     {endif}
   {else}
@@ -157,10 +163,10 @@
 
 {endif}
 
-; as there is no AMS, these next three lines only serve to hide T[next_extruder]
-; if this was not included, the T[next_extruder] command is input after this
-; code and will cause the system to hang as the toolchange command searches
-; for the AMS
-M620 S[next_extruder]A
-T[next_extruder]
-M621 S[next_extruder]A
+  ; as there is no AMS, these next three lines only serve to hide T[next_extruder]
+  ; if this was not included, the T[next_extruder] command is input after this
+  ; code and will cause the system to hang as the toolchange command searches
+  ; for the AMS
+  M620 S[next_extruder]A
+  T[next_extruder]
+  M621 S[next_extruder]A
